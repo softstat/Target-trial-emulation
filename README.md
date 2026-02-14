@@ -2,8 +2,7 @@
 # 개복 vs 로봇 보조 방광절제술 후 전체 생존기간 비교  
 ## Target Trial Emulation을 활용한 Immortal Time Bias 완화
 
-> **Journal**: The Korean Journal of Applied Statistics (KJAS)  
-> **Manuscript ID**: KJAS-2025-052  
+> **Journal**: The Korean Journal of Applied Statistics (KJAS) 
 > **Authors**: 김민석, 이주영 (중앙대학교 응용통계학과)  
 > **사용 언어**: SAS, R
 
