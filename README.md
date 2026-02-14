@@ -12,8 +12,8 @@
 ## 1. 연구 배경 및 목적
 
 ### 배경
-- **방광암(Bladder Cancer)**은 전 세계적으로 흔한 악성 종양이며, **근치적 방광절제술(Radical Cystectomy)**이 근침윤성 방광암의 표준 치료법
-- 2000년대 초반부터 **로봇 보조 근치적 방광절제술(RARC)**이 최소 침습 대안으로 부상
+- 방광암(Bladder Cancer)은 전 세계적으로 흔한 악성 종양이며, 근치적 방광절제술(Radical Cystectomy)이 근침윤성 방광암의 표준 치료법
+- 2000년대 초반부터 로봇 보조 근치적 방광절제술(RARC)이 최소 침습 대안으로 부상
 - 기존 관찰 연구들은 **Immortal Time Bias**와 **Selection Bias**로 인해 일관되지 않은 결과를 보고
 
 ### 목적
@@ -71,16 +71,16 @@
 **Cox Proportional Hazards Model** (공통 기반):
 
 ```
-h(t | Z_i) = h_0(t) × exp(β'Z_i)
+$$h(t | Z_i) = h_0(t) × exp(β'Z_i)$$
 ```
 
 **IPCW 가중 부분우도 (CCW 전용)**:
 
 ```
-L_IPCW(β) = ∏ [ sw_i(t) × exp(β_A × A_i^g) / Σ sw_j(t) × Y_j(t) × exp(β_A × A_j^g) ]^ΔN_i(t)
+$$L_IPCW(β) = ∏ [ sw_i(t) × exp(β_A × A_i^g) / Σ sw_j(t) × Y_j(t) × exp(β_A × A_j^g) ]^ΔN_i(t)$$
 ```
 
-- `sw_i(t)`: 안정화 역확률 중도절단 가중치 = Ĝ₀(t) / Ĝ(t|z_i)
+- `sw_i(t)`: 안정화 역확률 중도절단 가중치 = $$Ĝ₀(t) / Ĝ(t|z_i)$$
 - 중도절단 확률은 Cox 모형으로 추정 (공변량: 연령, 성별, 동반질환, 진단연도)
 
 ---
@@ -149,11 +149,9 @@ L_IPCW(β) = ∏ [ sw_i(t) × exp(β_A × A_i^g) / Σ sw_j(t) × Y_j(t) × exp(�
 
 ---
 
-## 6. SAS / R 구현 포인트
 
 ### R에서의 주요 패키지 및 구현
 
-```r
 # 생존 분석 기본
 library(survival)    # Cox PH model, Kaplan-Meier
 library(survminer)   # 생존 곡선 시각화
@@ -167,38 +165,8 @@ library(survminer)   # 생존 곡선 시각화
 # 4. 가중 Cox 모형: coxph(..., weights = sw)
 # 5. G-computation: 조건부 생존함수의 경험 분포 평균
 
-# Bootstrap (500회)
-boot_results <- replicate(500, {
-  boot_idx <- sample(1:n, replace = TRUE)
-  # clone → censor → weight → fit 반복
-})
-```
 
-### SAS에서의 주요 구현
 
-```sas
-/* 생존 분석 */
-PROC PHREG DATA=cloned_data;
-  CLASS treatment age_group sex cci dx_year;
-  MODEL time*event(0) = treatment age_group sex cci dx_year;
-  WEIGHT sw;  /* 안정화 IPCW 가중치 */
-RUN;
-
-/* 중도절단 모형 (IPCW 산출용) */
-PROC PHREG DATA=cloned_data;
-  CLASS age_group sex cci dx_year;
-  MODEL time*artificial_censor(0) = age_group sex cci dx_year;
-  OUTPUT OUT=censor_prob SURVIVAL=G_hat;
-RUN;
-
-/* 기저특성 비교 */
-PROC FREQ DATA=study_pop;
-  TABLES (age_group sex dx_year income cci hypertension hospital)*surgery_type
-         / CHISQ;
-RUN;
-```
-
----
 
 ## 7. 연구 의의 및 한계
 
@@ -230,21 +198,7 @@ RUN;
 
 ---
 
-## 9. 면접 대비 Q&A
-
-**Q1. Immortal Time Bias가 왜 발생하나요?**  
-> 추적 시작(TUR-BT)과 치료 배정(수술) 시점이 일치하지 않아, 수술까지 생존해야만 해당 치료군에 포함되므로 인위적 생존 이점이 발생합니다.
-
-**Q2. CCW 방법의 핵심 아이디어는?**  
-> 모든 환자를 두 치료 전략에 동시에 배정(Cloning)하고, 실제 치료가 배정 전략에서 이탈하면 중도절단(Censoring)한 뒤, 이로 인한 정보적 중도절단을 IPCW로 보정(Weighting)합니다.
-
-**Q3. 왜 안정화 가중치(Stabilized Weights)를 사용하나요?**  
-> 역확률 가중치가 극단적으로 커질 수 있어 분산이 증가합니다. 분자에 주변(marginal) 중도절단 생존함수를 넣어 가중치를 안정화하면 분산이 줄어듭니다.
-
-**Q4. Landmark Analysis와 CCW의 차이는?**  
-> Landmark은 특정 시점까지 생존한 환자만 포함하므로 Selection Bias가 존재합니다. CCW는 모든 적격 환자를 포함하고 IPCW로 보정하여 TUR-BT 시점에서의 인과 효과를 추정합니다.
-
 **Q5. 이 연구의 주요 결론은?**  
-> CCW를 적용하면 ORC와 RARC 간 전체 생존에 유의한 차이가 없었으며(HR=1.02), 기존 연구에서 보고된 ORC의 생존 이점은 방법론적 편향에 기인한 것으로 판단됩니다.
+> CCW를 적용하면 ORC와 RARC 간 전체 생존에 유의한 차이가 없었으며(HR=1.02), 기존 연구에서 보고된 ORC의 생존 이점은 방법론적 편향에 기인한 것으로 판단
 
 
