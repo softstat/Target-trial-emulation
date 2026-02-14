@@ -149,25 +149,10 @@ $$L_IPCW(β) = ∏ [ sw_i(t) × exp(β_A × A_i^g) / Σ sw_j(t) × Y_j(t) × exp
 ---
 
 
-### R에서의 주요 패키지 및 구현
-
-# 생존 분석 기본
-library(survival)    # Cox PH model, Kaplan-Meier
-library(survminer)   # 생존 곡선 시각화
-
-# CCW 구현 핵심 단계
-# 1. Cloning: 각 환자를 2행으로 복제 (ORC/RARC 배정)
-# 2. Censoring: 배정 전략 이탈 시 인위적 중도절단 적용
-# 3. IPCW 가중치 계산
-#    - 중도절단 모형: coxph(Surv(time, censor_event) ~ age + sex + cci + dx_year)
-#    - 안정화 가중치: KM marginal / Cox conditional
-# 4. 가중 Cox 모형: coxph(..., weights = sw)
-# 5. G-computation: 조건부 생존함수의 경험 분포 평균
 
 
 
-
-## 7. 연구 의의 및 한계
+## 6. 연구 의의 및 한계
 
 ### 의의
 - **Target Trial Emulation**을 방광암 수술 비교에 적용한 국내 최초 연구
@@ -181,7 +166,7 @@ library(survminer)   # 생존 곡선 시각화
 
 ---
 
-## 8. 핵심 키워드 정리
+## 7. 핵심 키워드 정리
 
 | 키워드 | 설명 |
 |--------|------|
@@ -196,8 +181,5 @@ library(survminer)   # 생존 곡선 시각화
 | **Bootstrap** | 비모수 재표본 방법; CCW에서 신뢰구간 산출에 활용 |
 
 ---
-
-**Q5. 이 연구의 주요 결론은?**  
-> CCW를 적용하면 ORC와 RARC 간 전체 생존에 유의한 차이가 없었으며(HR=1.02), 기존 연구에서 보고된 ORC의 생존 이점은 방법론적 편향에 기인한 것으로 판단
 
 
